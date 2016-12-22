@@ -14,7 +14,7 @@ class NotificationHandler: NSObject, AppLifeCycleProtocol {
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject : AnyObject]?) -> Bool {
         configPush()
-        if let launchOptions = launchOptions, userInfo = launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey] as? [NSObject: AnyObject], origin = userInfo["origin"] as? String {
+        if let launchOptions = launchOptions, let userInfo = launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey] as? [NSObject: AnyObject], let origin = userInfo["origin"] as? String {
             if origin == "helpshift" {
                 if let rootVC = application.keyWindow?.rootViewController {
                     HelpshiftCore.handleRemoteNotification(userInfo, withController: rootVC)
@@ -36,7 +36,7 @@ class NotificationHandler: NSObject, AppLifeCycleProtocol {
 
     func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
         DDLogInfo("didRegisterForRemoteNotificationsWithDeviceToken: \(deviceToken.hexString())")
-        HelpshiftCore.registerDeviceToken(deviceToken)
+        HelpshiftCore.registerDeviceToken(deviceToken as Data!)
     }
 
     func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {

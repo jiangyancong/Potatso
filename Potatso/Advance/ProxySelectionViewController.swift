@@ -15,7 +15,7 @@ class ProxySelectionViewController: FormViewController {
     
     var proxies: [Proxy] = []
     var selectedProxies: NSMutableSet
-    var callback: ([Proxy] -> Void)?
+    var callback: (([Proxy]) -> Void)?
     
     init(selectedProxies: [Proxy], callback: ([Proxy] -> Void)?) {
         self.selectedProxies = NSMutableSet(array: selectedProxies)
@@ -32,7 +32,7 @@ class ProxySelectionViewController: FormViewController {
         navigationItem.title = "Choose Proxy".localized()
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         generateForm()
     }
@@ -57,7 +57,7 @@ class ProxySelectionViewController: FormViewController {
         }.cellUpdate({ (cell, row) in
             cell.textLabel?.textColor = Color.Brand
         }).onCellSelection({ [unowned self] (cell, row) -> () in
-            self.showProxyConfiguration(nil)
+            self.showProxyConfiguration(proxy: nil)
         })
         form.delegate = self
         tableView?.reloadData()
@@ -67,7 +67,7 @@ class ProxySelectionViewController: FormViewController {
         selectedProxies.removeAllObjects()
         let values = form.values()
         for proxy in proxies {
-            if let checked = values[proxy.name] as? Bool where checked && proxy.name == selectedRow.title {
+            if let checked = values[proxy.name] as? Bool , checked && proxy.name == selectedRow.title {
                 selectedProxies.addObject(proxy)
             }
         }

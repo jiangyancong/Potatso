@@ -13,7 +13,7 @@ import Realm
 import RealmSwift
 
 let potatsoZoneId = CKRecordZoneID(zoneName: "PotatsoCloud", ownerName: CKOwnerDefaultName)
-let potatsoDB = CKContainer.defaultContainer().privateCloudDatabase
+let potatsoDB = CKContainer.default().privateCloudDatabase
 let potatsoSubscriptionId = "allSubscription"
 
 public protocol CloudKitRecord {
@@ -90,7 +90,7 @@ extension RuleSet: CloudKitRecord {
     public static func fromCloudKitRecord(record: CKRecord) -> Self {
         let ruleset = self.init()
         for key in RuleSet.keys {
-            if let v = record.valueForKey(key) {
+            if let v = record.value(forKey: key) {
                 ruleset.setValue(v, forKey: key)
             }
         }
@@ -125,7 +125,7 @@ extension ConfigurationGroup: CloudKitRecord {
     public static func fromCloudKitRecord(record: CKRecord) -> Self {
         let group = self.init()
         for key in ConfigurationGroup.keys {
-            if let v = record.valueForKey(key) {
+            if let v = record.value(forKey: key) {
                 group.setValue(v, forKey: key)
             }
         }
@@ -181,7 +181,7 @@ func changeLocalRecord(record: CKRecord) throws {
         return
     }
     realmObject.synced = true
-    if let local = local, type = record.realmClassType {
+    if let local = local, let type = record.realmClassType {
         if local.updatedAt > realmObject.updatedAt {
             try DBUtils.mark(local.uuid, type: type, synced: false)
             return

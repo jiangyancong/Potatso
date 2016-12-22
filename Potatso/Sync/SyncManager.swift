@@ -15,8 +15,8 @@ public enum SyncServiceType: String {
 }
 
 public protocol SyncServiceProtocol {
-    func setup(completion: (ErrorType? -> Void)?)
-    func sync(manually: Bool, completion: (ErrorType? -> Void)?)
+    func setup(completion: ((Error?) -> Void)?)
+    func sync(manually: Bool, completion: ((Error?) -> Void)?)
     func stop()
 }
 
@@ -32,7 +32,7 @@ public class SyncManager {
 
     var currentSyncServiceType: SyncServiceType {
         get {
-            if let raw = NSUserDefaults.standardUserDefaults().objectForKey(SyncManager.serviceTypeKey) as? String, type = SyncServiceType(rawValue: raw) {
+            if let raw = UserDefaults.standard.object(forKey: SyncManager.serviceTypeKey) as? String, let type = SyncServiceType(rawValue: raw) {
                 return type
             }
             return .None
@@ -42,9 +42,9 @@ public class SyncManager {
                 return
             }
             getCurrentSyncService()?.stop()
-            NSUserDefaults.standardUserDefaults().setObject(new.rawValue, forKey: SyncManager.serviceTypeKey)
-            NSUserDefaults.standardUserDefaults().synchronize()
-            NSNotificationCenter.defaultCenter().postNotificationName(SyncManager.syncServiceChangedNotification, object: nil)
+            UserDefaults.standard.set(new.rawValue, forKey: SyncManager.serviceTypeKey)
+            UserDefaults.standard.synchronize()
+            NotificationCenter.default.post(name: NSNotification.Name(rawValue: SyncManager.syncServiceChangedNotification), object: nil)
         }
     }
 
@@ -71,36 +71,36 @@ public class SyncManager {
     }
 
     func showSyncVC(inVC vc:UIViewController? = nil) {
-        guard let currentVC = vc ?? UIApplication.sharedApplication().keyWindow?.rootViewController else {
+        guard let currentVC = vc ?? UIApplication.shared.keyWindow?.rootViewController else {
             return
         }
         let syncVC = SyncVC()
-        currentVC.showViewController(syncVC, sender: self)
+        currentVC.show(syncVC, sender: self)
     }
 
 }
 
 extension SyncManager {
 
-    func setupNewService(type: SyncServiceType, completion: (ErrorType? -> Void)?) {
+    func setupNewService(type: SyncServiceType, completion: ((Error?) -> Void)?) {
         if let service = getSyncService(forType: type) {
-            service.setup(completion)
+            service.setup(completion: completion)
         } else {
             completion?(nil)
         }
     }
 
-    func setup(completion: (ErrorType? -> Void)?) {
-        getCurrentSyncService()?.setup(completion)
+    func setup(completion: ((Error?) -> Void)?) {
+        getCurrentSyncService()?.setup(completion: completion)
     }
 
-    func sync(manually: Bool = false, completion: (ErrorType? -> Void)? = nil) {
+    func sync(manually: Bool = false, completion: ((Error?) -> Void)? = nil) {
         if let service = getCurrentSyncService() {
             syncing = true
-            NSNotificationCenter.defaultCenter().postNotificationName(SyncManager.syncServiceChangedNotification, object: nil)
-            service.sync(manually) { [weak self] error in
+            NotificationCenter.default.postNotificationName(NSNotification.Name(rawValue: SyncManager.syncServiceChangedNotification), object: nil)
+            service.sync(manually: manually) { [weak self] error in
                 self?.syncing = false
-                NSNotificationCenter.defaultCenter().postNotificationName(SyncManager.syncServiceChangedNotification, object: nil)
+                NotificationCenter.defaultCenter.postNotificationName(NSNotification.Name(rawValue: SyncManager.syncServiceChangedNotification), object: nil)
                 completion?(error)
             }
         }

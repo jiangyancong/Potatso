@@ -25,11 +25,11 @@ class ConfigGroupChooseManager {
 
     func show() {
         if window == nil {
-            window = ConfigGroupChooseWindow(frame: UIScreen.mainScreen().bounds)
+            window = ConfigGroupChooseWindow(frame: UIScreen.mainScreen.bounds)
             window?.backgroundColor = UIColor.clearColor()
             window?.makeKeyAndVisible()
             window?.chooseVC.view.frame = CGRect(x: 0, y: window!.frame.height, width: window!.frame.width, height: window!.frame.height)
-            UIView.animateWithDuration(0.3) {
+            UIView.animate(withDuration: 0.3) {
                 self.window?.backgroundColor = "000".color.alpha(0.5)
                 self.window?.chooseVC.view.frame.origin = CGPoint(x: 0, y: 0)
             }
@@ -57,7 +57,7 @@ class ConfigGroupChooseWindow: UIWindow {
     override init(frame: CGRect) {
         super.init(frame: frame)
         addSubview(chooseVC.view)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ConfigGroupChooseWindow.onStatusBarFrameChange), name: UIApplicationDidChangeStatusBarFrameNotification, object: nil)
+        NotificationCenter.defaultCenter().addObserver(self, selector: #selector(ConfigGroupChooseWindow.onStatusBarFrameChange), name: UIApplicationDidChangeStatusBarFrameNotification, object: nil)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -134,7 +134,7 @@ class ConfigGroupChooseVC: UIViewController, UITableViewDataSource, UITableViewD
     }
 
     func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldReceiveTouch touch: UITouch) -> Bool {
-        if let view = touch.view where view.isDescendantOfView(tableView){
+        if let view = touch.view , view.isDescendantOfView(tableView){
             return false
         }
         return true

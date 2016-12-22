@@ -20,7 +20,7 @@ class ICloudSyncService: SyncServiceProtocol {
 
     }
 
-    func setup(completion: (ErrorType? -> Void)?) {
+    func setup(completion: ((Error?) -> Void)?) {
         DDLogInfo(">>>>>> Setuping iCloud sync service")
         let setupOp = ICloudSetupOperation { [weak self] (error) in
             if let e = error {
@@ -34,11 +34,11 @@ class ICloudSyncService: SyncServiceProtocol {
         operationQueue.addOperation(setupOp)
     }
 
-    func sync(manually: Bool = false, completion: (ErrorType? -> Void)?) {
+    func sync(manually: Bool = false, completion: ((Error?) -> Void)?) {
         DDLogInfo(">>>>>>>>>> iCloud sync start")
         if manually {
             DDLogWarn("Manually sync: clear token and mark all as not synced")
-            setZoneChangeToken(potatsoZoneId, changeToken: nil)
+            setZoneChangeToken(zoneID: potatsoZoneId, changeToken: nil)
             _ = try? DBUtils.markAll(syncd: false)
         }
 
@@ -104,7 +104,7 @@ class ICloudSyncService: SyncServiceProtocol {
 
     func unsubscribeNotification() {
         DDLogInfo("unsubscribing cloudkit database changes...")
-        potatsoDB.deleteSubscriptionWithID(potatsoSubscriptionId) { (id, error) in
+        potatsoDB.delete(withSubscriptionID: potatsoSubscriptionId) { (id, error) in
             if let error = error {
                 DDLogError("unsubscribe cloudkit database changes error: \(error.localizedDescription)")
             } else {

@@ -12,25 +12,25 @@ import NetworkExtension
 
 class DashboardVC: FormViewController {
 
-    var timer: NSTimer?
+    var timer: Timer?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.title = "Statistics".localized()
     }
 
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         startTimer()
     }
 
-    override func viewWillDisappear(animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         stopTimer()
     }
 
     func startTimer() {
-        timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: #selector(DashboardVC.onTime), userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(DashboardVC.onTime), userInfo: nil, repeats: true)
         timer?.fire()
     }
 
@@ -44,9 +44,9 @@ class DashboardVC: FormViewController {
     }
 
     func handleRefreshUI() {
-        Manager.sharedManager.loadProviderManager({ (manager) in
+        Manager.sharedManager.loadProviderManager(complete: { (manager) in
             dispatch_async(dispatch_get_main_queue(), {
-                self.updateForm(manager)
+                self.updateForm(manager: manager)
             })
         })
     }

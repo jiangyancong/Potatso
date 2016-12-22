@@ -11,11 +11,11 @@ import RealmSwift
 public func setZoneChangeToken(zoneID: CKRecordZoneID, changeToken: CKServerChangeToken?) {
     let key = "\(zoneID.zoneName)_serverChangeToken"
     if let changeToken = changeToken {
-        NSUserDefaults.standardUserDefaults().setObject(
-            NSKeyedArchiver.archivedDataWithRootObject(changeToken),
+        UserDefaults.standard.set(
+            NSKeyedArchiver.archivedData(withRootObject: changeToken),
             forKey: key)
     } else {
-        NSUserDefaults.standardUserDefaults().removeObjectForKey(key)
+        UserDefaults.standardUserDefaults().removeObjectForKey(key)
     }
     NSUserDefaults.standardUserDefaults().synchronize()
 }
@@ -41,7 +41,7 @@ public func recordToLocalData(record: CKRecord) -> NSData {
     let archivedData = NSMutableData()
     let archiver = NSKeyedArchiver(forWritingWithMutableData: archivedData)
     archiver.requiresSecureCoding = true
-    record.encodeSystemFieldsWithCoder(archiver)
+    record.encodeSystemFields(with: archiver)
     archiver.finishEncoding()
     return archivedData
 }
@@ -58,7 +58,7 @@ public func recordToLocalData(record: CKRecord) -> NSData {
  */
 public func resolveConflicts(error: NSError,
                              completionHandler: (NSError!) -> (),
-                             resolver: (CKRecord, serverRecord: CKRecord) -> CKRecord) -> [CKRecord]? {
+                             resolver: (CKRecord, _ serverRecord: CKRecord) -> CKRecord) -> [CKRecord]? {
     
     var adjustedRecords = [CKRecord]()
     
@@ -71,8 +71,8 @@ public func resolveConflicts(error: NSError,
                 let userInfo = partialError.userInfo
                 
                 guard let serverRecord = userInfo[CKRecordChangedErrorServerRecordKey] as? CKRecord,
-                    ancestorRecord = userInfo[CKRecordChangedErrorAncestorRecordKey] as? CKRecord,
-                    clientRecord = userInfo[CKRecordChangedErrorClientRecordKey] as? CKRecord else {
+                    let ancestorRecord = userInfo[CKRecordChangedErrorAncestorRecordKey] as? CKRecord,
+                    let clientRecord = userInfo[CKRecordChangedErrorClientRecordKey] as? CKRecord else {
                         
                         completionHandler(error)
                         // TODO: correctly handle error here
@@ -143,7 +143,7 @@ public func createAlertOperation(error: NSError) -> AlertOperation {
         var errorString = "Unknown"
         
         if let rlmErrorCode = CustomRealmErrorCode(rawValue: error.code) {
-            errorString = String(rlmErrorCode)
+            errorString = String(describing: rlmErrorCode)
         }
         
         alert.title = "Write Error"
@@ -170,37 +170,37 @@ public func createAlertOperation(error: NSError) -> AlertOperation {
 }
 
 // Extend `CKErrorCode` to provide more descriptive errors to user.
-extension CKErrorCode: CustomStringConvertible {
-    public var description: String {
-        switch self {
-        case InternalError: return "InternalError"
-        case PartialFailure: return "PartialFailure"
-        case NetworkUnavailable: return "NetworkUnavailable"
-        case NetworkFailure: return "NetworkFailure"
-        case BadContainer: return "BadContainer"
-        case ServiceUnavailable: return "ServiceUnavailable"
-        case RequestRateLimited: return "RequestRateLimited"
-        case MissingEntitlement: return "MissingEntitlement"
-        case NotAuthenticated: return "NotAuthenticated"
-        case PermissionFailure: return "PermissionFailure"
-        case UnknownItem: return "UnknownItem"
-        case InvalidArguments: return "InvalidArguments"
-        case ResultsTruncated: return "ResultsTruncated"
-        case ServerRecordChanged: return "ServerRecordChanged"
-        case ServerRejectedRequest: return "ServerRejectedRequest"
-        case AssetFileNotFound: return "AssetFileNotFound"
-        case AssetFileModified: return "AssetFileModified"
-        case IncompatibleVersion: return "IncompatibleVersion"
-        case ConstraintViolation: return "ConstraintViolation"
-        case OperationCancelled: return "OperationCancelled"
-        case ChangeTokenExpired: return "ChangeTokenExpired"
-        case BatchRequestFailed: return "BatchRequestFailed"
-        case ZoneBusy: return "ZoneBusy"
-        case BadDatabase: return "BadDatabase"
-        case QuotaExceeded: return "QuotaExceeded"
-        case ZoneNotFound: return "ZoneNotFound"
-        case LimitExceeded: return "LimitExceeded"
-        case UserDeletedZone: return "UserDeletedZone"
-        }
-    }
-}
+//extension CKErrorCode: CustomStringConvertible {
+//    public var description: String {
+//        switch self {
+//        case InternalError: return "InternalError"
+//        case PartialFailure: return "PartialFailure"
+//        case NetworkUnavailable: return "NetworkUnavailable"
+//        case NetworkFailure: return "NetworkFailure"
+//        case BadContainer: return "BadContainer"
+//        case ServiceUnavailable: return "ServiceUnavailable"
+//        case RequestRateLimited: return "RequestRateLimited"
+//        case MissingEntitlement: return "MissingEntitlement"
+//        case NotAuthenticated: return "NotAuthenticated"
+//        case PermissionFailure: return "PermissionFailure"
+//        case UnknownItem: return "UnknownItem"
+//        case InvalidArguments: return "InvalidArguments"
+//        case ResultsTruncated: return "ResultsTruncated"
+//        case ServerRecordChanged: return "ServerRecordChanged"
+//        case ServerRejectedRequest: return "ServerRejectedRequest"
+//        case AssetFileNotFound: return "AssetFileNotFound"
+//        case AssetFileModified: return "AssetFileModified"
+//        case IncompatibleVersion: return "IncompatibleVersion"
+//        case ConstraintViolation: return "ConstraintViolation"
+//        case OperationCancelled: return "OperationCancelled"
+//        case ChangeTokenExpired: return "ChangeTokenExpired"
+//        case BatchRequestFailed: return "BatchRequestFailed"
+//        case ZoneBusy: return "ZoneBusy"
+//        case BadDatabase: return "BadDatabase"
+//        case QuotaExceeded: return "QuotaExceeded"
+//        case ZoneNotFound: return "ZoneNotFound"
+//        case LimitExceeded: return "LimitExceeded"
+//        case UserDeletedZone: return "UserDeletedZone"
+//        }
+//    }
+//}

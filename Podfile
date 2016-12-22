@@ -1,6 +1,7 @@
 source 'https://github.com/CocoaPods/Specs.git'
 
 platform :ios, '9.0'
+
 use_frameworks!
 
 def fabric
@@ -16,6 +17,7 @@ def library
     pod 'KeychainAccess'
 end
 
+
 def tunnel
     pod 'MMWormhole', '~> 2.0.0'
 end
@@ -25,17 +27,19 @@ def socket
 end
 
 def model
-    pod 'RealmSwift'
+platform :ios, '9.0'
+   pod 'RealmSwift'
 end
 
 target "Potatso" do
     pod 'Aspects', :path => "./Library/Aspects/"
-    pod 'Cartography'
+    #pod 'Cartography'
+    pod 'Cartography', :git => 'https://github.com/mluisbrown/Cartography.git', :branch => 'swift3'
     pod 'AsyncSwift'
     pod 'SwiftColor', '~> 0.3.7'
     pod 'Appirater'
-    pod 'Eureka', '~> 1.6.0'
     pod 'MBProgressHUD'
+pod 'Eureka', '~> 2.0.0-beta.1'
     pod 'CallbackURLKit'
     pod 'ICDMaterialActivityIndicatorView', '~> 0.1.0'
     pod 'Reveal-iOS-SDK', '~> 1.6.2', :configurations => ['Debug']
@@ -43,10 +47,10 @@ target "Potatso" do
     pod 'ISO8601DateFormatter', '~> 0.8'
     pod 'Alamofire'
     pod 'ObjectMapper'
-    pod 'CocoaLumberjack/Swift'
+    pod 'CocoaLumberjack/Swift', '~> 3.0'
     pod 'Helpshift', '5.6.1'
-    pod 'PSOperations', '~> 2.3'
-    pod 'LogglyLogger-CocoaLumberjack', '~> 2.0'
+    pod 'PSOperations', '~> 3.0'
+#    pod 'LogglyLogger-CocoaLumberjack', '~> 2.0'
     tunnel
     library
     fabric
@@ -64,7 +68,8 @@ target "PacketProcessor" do
 end
 
 target "TodayWidget" do
-    pod 'Cartography'
+    #pod 'Cartography'
+    pod 'Cartography', :git => 'https://github.com/mluisbrown/Cartography.git', :branch => 'swift3'
     pod 'SwiftColor'
     library
     socket
@@ -80,18 +85,18 @@ target "PotatsoModel" do
     model
 end
 
-target "PotatsoLibraryTests" do
-    library
-end
+#target "PotatsoLibraryTests" do
+#    library
+#end
 
 post_install do |installer|
     installer.pods_project.targets.each do |target|
         target.build_configurations.each do |config|
             config.build_settings['ENABLE_BITCODE'] = 'NO'
+            config.build_settings['SWIFT_VERSION'] = '3.0'
             if target.name == "HelpShift"
                 config.build_settings["OTHER_LDFLAGS"] = '$(inherited) "-ObjC"'
             end
         end
     end
 end
-

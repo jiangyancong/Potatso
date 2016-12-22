@@ -90,7 +90,7 @@ extension HTTPResponseCode: CustomStringConvertible {
         case 500..<600:
             return "000000".color
         default:
-            return UIColor.blackColor()
+            return UIColor.black
         }
     }
     
@@ -200,10 +200,10 @@ enum ForwardStage: Int {
 struct RequestEvent {
     let request: Request
     let stage: RequestTimeStage
-    let timestamp: NSTimeInterval
-    var duration: NSTimeInterval = -1
+    let timestamp: TimeInterval
+    var duration: TimeInterval = -1
     
-    init(request: Request, stage: RequestTimeStage, timestamp: NSTimeInterval) {
+    init(request: Request, stage: RequestTimeStage, timestamp: TimeInterval) {
         self.request = request
         self.stage = stage
         self.timestamp = timestamp
@@ -283,7 +283,7 @@ class Request {
     var forwardStage: ForwardStage = .NONE
     
     init?(dict: [String: AnyObject]) {
-        guard let url = dict["url"] as? String, m = dict["method"] as? String, method = HTTPMethod(rawValue: m) else {
+        guard let url = dict["url"] as? String, let m = dict["method"] as? String, let method = HTTPMethod(rawValue: m) else {
             return nil
         }
 
@@ -299,25 +299,25 @@ class Request {
         if let ip = dict["ip"] as? String {
             self.ip = ip
         }
-        if let c = dict["responseCode"] as? Int, code = HTTPResponseCode(rawValue: c) {
+        if let c = dict["responseCode"] as? Int, let code = HTTPResponseCode(rawValue: c) {
             self.responseCode = code
         }
         self.globalMode = dict["global"] as? Bool ?? false
-        if let c = dict["routing"] as? Int, r = RequestRouting(rawValue: c) {
+        if let c = dict["routing"] as? Int, let r = RequestRouting(rawValue: c) {
             self.routing = r
         }
-        if let c = dict["forward_stage"] as? Int, r = ForwardStage(rawValue: c) {
+        if let c = dict["forward_stage"] as? Int, let r = ForwardStage(rawValue: c) {
             self.forwardStage = r
         }
 
         // Events
         var unnormalizedEvents: [RequestEvent] = []
         for i in 0..<RequestTimeStage.Count.rawValue {
-            if let ts = dict["time\(i)"] as? Double, stage = RequestTimeStage(rawValue: i) {
+            if let ts = dict["time\(i)"] as? Double, let stage = RequestTimeStage(rawValue: i) {
                 guard ts > 0 else {
                     continue
                 }
-                if let _ = Request.excluededStage.indexOf(stage) {
+                if let _ = Request.excluededStage.index(of: stage) {
                     continue
                 }
                 let event = RequestEvent(request: self, stage: stage, timestamp: ts)

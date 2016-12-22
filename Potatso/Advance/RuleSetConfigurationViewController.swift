@@ -51,7 +51,7 @@ class RuleSetConfigurationViewController: FormViewController {
         generateForm()
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if editable {
             navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Done, target: self, action: #selector(save))
@@ -117,7 +117,7 @@ class RuleSetConfigurationViewController: FormViewController {
     func save() {
         do {
             let values = form.values()
-            guard let name = (values[kRuleSetFormName] as? String)?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()) where name.characters.count > 0 else {
+            guard let name = (values[kRuleSetFormName] as? String)?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()) , name.characters.count > 0 else {
                 throw "Name can't be empty".localized()
             }
             ruleSet.name = name

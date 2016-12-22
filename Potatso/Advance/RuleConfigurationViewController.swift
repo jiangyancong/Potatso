@@ -27,11 +27,11 @@ extension Rule {
 class RuleConfigurationViewController: FormViewController {
 
     var rule: Rule
-    var callback: (Rule -> Void)?
+    var callback: ((Rule) -> Void)?
     var editable: Bool = true
     let isEdit: Bool
     
-    init(rule: Rule?, callback: (Rule -> Void)?) {
+    init(rule: Rule?, callback: ((Rule) -> Void)?) {
         if let rule = rule {
             self.rule = rule
             isEdit = true
@@ -99,7 +99,7 @@ class RuleConfigurationViewController: FormViewController {
             guard let type = values[kRuleFormType] as? RuleType else {
                 throw "You must choose a type".localized()
             }
-            guard let value = (values[kRuleFormValue] as? String)?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()) where value.characters.count > 0 else {
+            guard let value = (values[kRuleFormValue] as? String)?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()) , value.characters.count > 0 else {
                 throw "Value can't be empty".localized()
             }
             guard let action = values[kRuleFormAction] as? RuleAction else {

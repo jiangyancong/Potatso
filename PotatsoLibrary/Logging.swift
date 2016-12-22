@@ -16,15 +16,15 @@ public enum LoggingLevel: Int{
     
     public static var currentLoggingLevel: LoggingLevel {
         get {
-            if let saved = NSUserDefaults.standardUserDefaults().objectForKey(kLoggingLevelIdentifier) as? Int {
+            if let saved = UserDefaults.standard.object(forKey: kLoggingLevelIdentifier) as? Int {
                 return LoggingLevel(rawValue: saved) ?? .DEBUG
             }else{
                 return .DEBUG
             }
         }
         set(o) {
-            NSUserDefaults.standardUserDefaults().setObject(o.rawValue, forKey: kLoggingLevelIdentifier)
-            NSUserDefaults.standardUserDefaults().synchronize()
+            UserDefaults.standard.set(o.rawValue, forKey: kLoggingLevelIdentifier)
+            UserDefaults.standard.synchronize()
         }
     }
 

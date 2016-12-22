@@ -1,3 +1,5 @@
+
+
 //
 //  IndexViewController.swift
 //  Potatso
@@ -30,10 +32,10 @@ class HomeVC: FormViewController, UINavigationControllerDelegate, HomePresenterP
         }
     }
 
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         self.status = .Off
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-        presenter.bindToVC(self)
+        presenter.bindToVC(vc: self)
         presenter.delegate = self
     }
 
@@ -47,14 +49,14 @@ class HomeVC: FormViewController, UINavigationControllerDelegate, HomePresenterP
         navigationController?.delegate = self
     }
 
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationItem.titleView = titleButton
         // Post an empty message so we could attach to packet tunnel process
         Manager.sharedManager.postMessage()
         handleRefreshUI()
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: "List".templateImage, style: .Plain, target: presenter, action: #selector(HomePresenter.chooseConfigGroups))
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Add, target: presenter, action: #selector(HomePresenter.showAddConfigGroup))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: "List".templateImage, style: .plain, target: presenter, action: #selector(HomePresenter.chooseConfigGroups))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: presenter, action: #selector(HomePresenter.showAddConfigGroup))
     }
 
     // MARK: - HomePresenter Protocol
@@ -70,7 +72,7 @@ class HomeVC: FormViewController, UINavigationControllerDelegate, HomePresenterP
     }
 
     func updateTitle() {
-        titleButton.setTitle(presenter.group.name, forState: .Normal)
+        titleButton.setTitle(presenter.group.name, for: .normal)
         titleButton.sizeToFit()
     }
 
@@ -84,13 +86,13 @@ class HomeVC: FormViewController, UINavigationControllerDelegate, HomePresenterP
     }
 
     func updateConnectButton() {
-        connectButton.enabled = [VPNStatus.On, VPNStatus.Off].contains(status)
-        connectButton.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+        connectButton.isEnabled = [VPNStatus.On, VPNStatus.Off].contains(status)
+        connectButton.setTitleColor(UIColor.white, for: .normal)
         switch status {
         case .Connecting, .Disconnecting:
             connectButton.animating = true
         default:
-            connectButton.setTitle(status.hintDescription, forState: .Normal)
+            connectButton.setTitle(status.hintDescription, for: .normal)
             connectButton.animating = false
         }
         connectButton.backgroundColor = status.color
@@ -115,8 +117,8 @@ class HomeVC: FormViewController, UINavigationControllerDelegate, HomePresenterP
                 $0.title = "Proxy".localized()
                 $0.value = "None".localized()
             }.cellSetup({ (cell, row) -> () in
-                cell.accessoryType = .DisclosureIndicator
-                cell.selectionStyle = .Default
+                cell.accessoryType = .disclosureIndicator
+                cell.selectionStyle = .default
             }).onCellSelection({ [unowned self](cell, row) -> () in
                 cell.setSelected(false, animated: true)
                 self.presenter.chooseProxy()
@@ -126,7 +128,7 @@ class HomeVC: FormViewController, UINavigationControllerDelegate, HomePresenterP
         proxySection <<< SwitchRow(kFormDefaultToProxy) {
             $0.title = "Default To Proxy".localized()
             $0.value = presenter.group.defaultToProxy
-            $0.hidden = Condition.Function([kFormProxies]) { [unowned self] form in
+            $0.hidden = Condition.function([kFormProxies]) { [unowned self] form in
                 return self.presenter.proxy == nil
             }
         }.onChange({ [unowned self] (row) in
@@ -143,8 +145,8 @@ class HomeVC: FormViewController, UINavigationControllerDelegate, HomePresenterP
             $0.value = presenter.group.dns
         }.cellSetup { cell, row in
             cell.textField.placeholder = "System DNS".localized()
-            cell.textField.autocorrectionType = .No
-            cell.textField.autocapitalizationType = .None
+            cell.textField.autocorrectionType = .no
+            cell.textField.autocapitalizationType = .none
         }
         return proxySection
     }
@@ -167,7 +169,7 @@ class HomeVC: FormViewController, UINavigationControllerDelegate, HomePresenterP
                         $0.value = String(format: "%d rule".localized(), count)
                     }
                 }.cellSetup({ (cell, row) -> () in
-                    cell.selectionStyle = .None
+                    cell.selectionStyle = .none
                 })
         }
         ruleSetSection <<< BaseButtonRow () {
@@ -204,13 +206,13 @@ class HomeVC: FormViewController, UINavigationControllerDelegate, HomePresenterP
     }
 
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
+        if editingStyle == .delete {
             do {
                 try defaultRealm.write {
                     presenter.group.ruleSets.removeAtIndex(indexPath.row)
                 }
-                form[indexPath].hidden = true
-                form[indexPath].evaluateHidden()
+                form[indexPath as IndexPath].hidden = true
+                form[indexPath as IndexPath].evaluateHidden()
             }catch {
                 self.showTextHUD("\("Fail to delete item".localized()): \((error as NSError).localizedDescription)", dismissAfterDelay: 1.5)
             }
@@ -218,16 +220,16 @@ class HomeVC: FormViewController, UINavigationControllerDelegate, HomePresenterP
     }
 
     func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
-        return .Delete
+        return .delete
     }
 
     // MARK: - TextRow
 
-    override func textInputDidEndEditing<T>(textInput: UITextInput, cell: Cell<T>) {
-        guard let textField = textInput as? UITextField, dnsString = textField.text where cell.row.tag == kFormDNS else {
+    override func textInputDidEndEditing<T>(_ textInput: UITextInput, cell: Cell<T>) {
+        guard let textField = textInput as? UITextField, let dnsString = textField.text , cell.row.tag == kFormDNS else {
             return
         }
-        presenter.updateDNS(dnsString)
+        presenter.updateDNS(dnsString: dnsString)
         textField.text = presenter.group.dns
     }
 
@@ -244,7 +246,7 @@ class HomeVC: FormViewController, UINavigationControllerDelegate, HomePresenterP
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        view.bringSubviewToFront(connectButton)
+        view.bringSubview(toFront: connectButton)
         tableView?.contentInset = UIEdgeInsetsMake(0, 0, connectButtonHeight, 0)
     }
 
@@ -259,16 +261,16 @@ class HomeVC: FormViewController, UINavigationControllerDelegate, HomePresenterP
 
     lazy var connectButton: FlatButton = {
         let v = FlatButton(frame: CGRect.zero)
-        v.addTarget(self, action: #selector(HomeVC.handleConnectButtonPressed), forControlEvents: .TouchUpInside)
+        v.addTarget(self, action: #selector(HomeVC.handleConnectButtonPressed), for: .touchUpInside)
         return v
     }()
 
     lazy var titleButton: UIButton = {
-        let b = UIButton(type: .Custom)
-        b.setTitleColor(UIColor.blackColor(), forState: .Normal)
-        b.addTarget(self, action: #selector(HomeVC.handleTitleButtonPressed), forControlEvents: .TouchUpInside)
+        let b = UIButton(type: .custom)
+        b.setTitleColor(UIColor.blackColor, for: .normal)
+        b.addTarget(self, action: #selector(HomeVC.handleTitleButtonPressed), for: .touchUpInside)
         if let titleLabel = b.titleLabel {
-            titleLabel.font = UIFont.boldSystemFontOfSize(titleLabel.font.pointSize)
+            titleLabel.font = UIFont.boldSystemFont(ofSize: titleLabel.font.pointSize)
         }
         return b
     }()

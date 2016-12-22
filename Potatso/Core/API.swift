@@ -55,7 +55,7 @@ struct API {
 
 extension RuleSet: Mappable {
 
-    public convenience init?(_ map: Map) {
+    public convenience init?(map: Map) {
         self.init()
         guard let rulesJSON = map.JSONDictionary["rules"] as? [AnyObject] else {
             return
@@ -110,10 +110,10 @@ extension Rule: Mappable {
         guard let pattern = map.JSONDictionary["pattern"] as? String else {
             return nil
         }
-        guard let actionStr = map.JSONDictionary["action"] as? String, action = RuleAction(rawValue: actionStr) else {
+        guard let actionStr = map.JSONDictionary["action"] as? String, let action = RuleAction(rawValue: actionStr) else {
             return nil
         }
-        guard let typeStr = map.JSONDictionary["type"] as? String, type = RuleType(rawValue: typeStr) else {
+        guard let typeStr = map.JSONDictionary["type"] as? String, let type = RuleType(rawValue: typeStr) else {
             return nil
         }
         self.init(type: type, action: action, value: pattern)
@@ -172,7 +172,7 @@ extension Alamofire.Request {
             }
 
             var JSONToMap: AnyObject?
-            if let keyPath = keyPath where keyPath.isEmpty == false {
+            if let keyPath = keyPath , keyPath.isEmpty == false {
                 JSONToMap = result.value?.valueForKeyPath(keyPath)
             } else {
                 JSONToMap = result.value
@@ -203,7 +203,7 @@ extension Alamofire.Request {
      - returns: The request.
      */
 
-    public func responseObject<T: Mappable>(queue queue: dispatch_queue_t? = nil, keyPath: String? = nil, mapToObject object: T? = nil, completionHandler: Response<T, NSError> -> Void) -> Self {
+    public func responseObject<T: Mappable>(queue: dispatch_queue_t? = nil, keyPath: String? = nil, mapToObject object: T? = nil, completionHandler: Response<T, NSError> -> Void) -> Self {
         return response(queue: queue, responseSerializer: Alamofire.Request.ObjectMapperSerializer(keyPath, mapToObject: object), completionHandler: completionHandler)
     }
 
@@ -232,7 +232,7 @@ extension Alamofire.Request {
             }
 
             let JSONToMap: AnyObject?
-            if let keyPath = keyPath where keyPath.isEmpty == false {
+            if let keyPath = keyPath , keyPath.isEmpty == false {
                 JSONToMap = result.value?.valueForKeyPath(keyPath)
             } else {
                 JSONToMap = result.value
@@ -262,7 +262,7 @@ extension Alamofire.Request {
         return response(queue: queue, responseSerializer: Alamofire.Request.ObjectMapperArraySerializer(keyPath), completionHandler: completionHandler)
     }
 
-    private static func logError(error: NSError, request: NSURLRequest?, response: NSURLResponse?) {
+    private static func logError(error: NSError, request: NSURLRequest?, response: URLResponse?) {
         DDLogError("ObjectMapperSerializer failure: \(error), request: \(request?.debugDescription), response: \(response.debugDescription)")
     }
 }

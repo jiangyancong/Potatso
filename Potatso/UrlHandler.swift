@@ -36,7 +36,7 @@ class UrlHandler: NSObject, AppLifeCycleProtocol {
     }
     
     func application(app: UIApplication, openURL url: NSURL, options: [String : AnyObject]) -> Bool {
-        let components = NSURLComponents(URL: url, resolvingAgainstBaseURL: false)
+        let components = NSURLComponents(url: url as URL, resolvingAgainstBaseURL: false)
         var parameters: Parameters = [:]
         components?.queryItems?.forEach {
             guard let _ = $0.value else {
@@ -45,7 +45,7 @@ class UrlHandler: NSObject, AppLifeCycleProtocol {
             parameters[$0.name] = $0.value
         }
         if let host = url.host {
-            return dispatchAction(url, actionString: host, parameters: parameters)
+            return dispatchAction(url: url, actionString: host, parameters: parameters)
         }
         return false
     }
@@ -66,10 +66,10 @@ enum URLAction: String {
     case SWITCH = "switch"
     case XCALLBACK = "x-callback-url"
 
-    func perform(url: NSURL?, parameters: Parameters, completion: (ErrorType? -> Void)? = nil) -> Bool {
+    func perform(url: NSURL?, parameters: Parameters, completion: ((Error?) -> Void)? = nil) -> Bool {
         switch self {
         case .ON:
-            Manager.sharedManager.startVPN({ (manager, error) in
+            Manager.sharedManager.startVPN(complete: { (manager, error) in
                 if error == nil {
                     self.autoClose(parameters)
                 }
@@ -77,10 +77,10 @@ enum URLAction: String {
             })
         case .OFF:
             Manager.sharedManager.stopVPN()
-            autoClose(parameters)
+            autoClose(parameters: parameters)
             completion?(nil)
         case .SWITCH:
-            Manager.sharedManager.switchVPN({ (manager, error) in
+            Manager.sharedManager.switchVPN(completion: { (manager, error) in
                 if error == nil {
                     self.autoClose(parameters)
                 }
@@ -96,12 +96,12 @@ enum URLAction: String {
 
     func autoClose(parameters: Parameters) {
         var autoclose = false
-        if let value = parameters["autoclose"] where value.lowercaseString == "true" || value.lowercaseString == "1" {
+        if let value = parameters["autoclose"] , value.lowercaseString == "true" || value.lowercased == "1" {
             autoclose = true
         }
         if autoclose {
-            Async.main(after: 1, block: {
-                UIControl().sendAction("suspend", to: UIApplication.sharedApplication(), forEvent: nil)
+            Async.main(after: 1, {
+                UIControl().sendAction("suspend", to: UIApplication.sharedApplication(), for: nil)
             })
         }
     }

@@ -10,7 +10,7 @@ import RealmSwift
 import PotatsoModel
 import YAML
 
-public enum ConfigError: ErrorType {
+public enum ConfigError: Error {
     case DownloadFail
     case SyntaxError
 }
@@ -42,15 +42,15 @@ public class Config {
     }
     
     public func setup(string configString: String) throws {
-        guard configString.characters.count > 0, let object = try? YAMLSerialization.objectWithYAMLString(configString, options: kYAMLReadOptionStringScalars), yaml = object as? [String: AnyObject] else {
+        guard configString.characters.count > 0, let object = try? YAMLSerialization.object(withYAMLString: configString, options: kYAMLReadOptionStringScalars), let yaml = object as? [String: AnyObject] else {
             throw ConfigError.SyntaxError
         }
         self.configDict = yaml
         try setupModels()
     }
     
-    public func setup(url url: NSURL) throws {
-        guard let string = try? String(contentsOfURL: url) else {
+    public func setup(url: NSURL) throws {
+        guard let string = try? String(contentsOf: url as URL) else {
             throw ConfigError.DownloadFail
         }
         try setup(string: string)

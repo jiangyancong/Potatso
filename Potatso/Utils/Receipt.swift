@@ -49,8 +49,8 @@ class Receipt: NSObject, SKRequestDelegate {
     }
 
     private func isStoreReceiptValidate() -> Bool {
-        NSLog("appStoreReceiptURL: \(NSBundle.mainBundle().appStoreReceiptURL)")
-        guard let receiptPath = NSBundle.mainBundle().appStoreReceiptURL?.path where NSFileManager.defaultManager().fileExistsAtPath(receiptPath) else {
+        NSLog("appStoreReceiptURL: \(Bundle.mainBundle.appStoreReceiptURL)")
+        guard let receiptPath = NSBundle.mainBundle().appStoreReceiptURL?.path , FileManager.defaultManager().fileExistsAtPath(receiptPath) else {
             NSLog("isStoreReceiptValidate can't find appStoreReceiptURL")
             return false
         }
@@ -99,7 +99,7 @@ class Receipt: NSObject, SKRequestDelegate {
     // MARK: - SKRequestDelegate
 
     @objc func requestDidFinish(request: SKRequest) {
-        guard let receiptPath = NSBundle.mainBundle().appStoreReceiptURL?.path where NSFileManager.defaultManager().fileExistsAtPath(receiptPath) else {
+        guard let receiptPath = NSBundle.mainBundle().appStoreReceiptURL?.path , NSFileManager.defaultManager().fileExistsAtPath(receiptPath) else {
             failAndTerminate()
             return
         }
