@@ -37,21 +37,21 @@ public class AppConfig {
     }
     
     public func loadConfig(fileName: String) {
-        var components = fileName.componentsSeparatedByString(".")
+        var components = fileName.components(separatedBy:".")
         let type = components.popLast()
-        let name = components.joinWithSeparator(".")
-        if let path = NSBundle.mainBundle().pathForResource(name, ofType: type) {
+        let name = components.joined(separator: ".")
+        if let path = Bundle.main.path(forResource:name, ofType: type) {
             let configDict = NSDictionary(contentsOfFile: path) as! [String: AnyObject]
-            loadConfig(configDict)
+            loadConfig(dictionary:configDict)
         }
     }
     
     public func loadConfig(dictionary: [String: AnyObject]) {
         if let lifeCycleDict = dictionary[ConfigKey.lifeCycle] as? [String: AnyObject] {
-            loadLifeCycleConfig(lifeCycleDict)
+            loadLifeCycleConfig(dictionary: lifeCycleDict)
         }
         if let lifeCycleDict = dictionary[ConfigKey.custom] as? [String: AnyObject] {
-            loadCustomConfig(lifeCycleDict)
+            loadCustomConfig(dictionary: lifeCycleDict)
         }
     }
     
